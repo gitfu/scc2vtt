@@ -5,8 +5,8 @@ Translates Scenarist SCC  closed captions to WebVTT
 
 ## How to use
 `
-This is a work in progress, that is working, but it is not ready for production.
-It's still a little light on features. 
+#####This is a work in progress, that is kind of working, but it is not ready for production.
+#####It's also light on features. 
 `
 #####The output file is call out.vtt
 
