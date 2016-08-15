@@ -30,9 +30,12 @@ chars=list(char2code.keys())
 codes=list(char2code.values())
 
 def scc2char(hexed):
-    if hexed == '80':	return '\n'
+#    if hexed == '80':	return '\n'
     s='0x'+hexed
     i=int(s,16)
+    if i in [80,128,138]:
+        return "\n"
+	
     if hexed[0] in ['a','b','c','d','e','f']: i= i ^ 0x80
     return chr(i)
 
