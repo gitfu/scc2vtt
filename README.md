@@ -15,5 +15,6 @@ It might be a little buggy still, yell if you find one.
 just chmod and go
 
 chmod +x scc2vtt
+`
 ./scc2vtt file.scc
-
+`
