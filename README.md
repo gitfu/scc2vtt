@@ -7,7 +7,7 @@ Translates Scenarist SCC  closed captions to WebVTT
 `
 This is a work in progress, that is working, but it is not ready for production.
 It's still a little light on features. 
-'
+`
 #####The output file is call out.vtt
 
 no option yet to change that. 
