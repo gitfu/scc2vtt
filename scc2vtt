@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+
+import sys
+from datamap import char2code
+
+blank=''
+
+vtt_header= 'WEBVTT\n\n'
+
+# I drop these codes ....for now?
+drops=('9170','94ae','94ad','9420', '942c','9425','9426','97a1')
+
+chars=list(char2code.keys())
+codes=list(char2code.values())
+
+def scc2char(hexed):
+    if hexed == '80':	return '\n'
+    s='0x'+hexed
+    i=int(s,16)
+    if hexed[0] in ['a','b','c','d','e','f']: i= i ^ 0x80
+    return chr(i)
+
+def scc_time2vtt(line_time):
+	lt=line_time.replace(":",".")
+	lt=lt.replace(".",":",2)
+	return lt
+
+def clear_drops(chunk):
+	'''
+	drop the drops
+	'''
+	if chunk in drops: chunk= blank
+	return chunk
+
+def scc_chunk2char(chunk):
+	'''
+	take an scc chunk like '92ad'and see if it is listed in
+	the specials or extended codes tuples return decoded value from a chars tuple
+	'''
+	decoded=blank
+
+	if chunk in codes:
+		idx=codes.index(chunk)
+		decoded=chars[idx]
+	return decoded
+
+def scc_chunk2twochars(chunk):
+	'''
+	decode scc into chaars
+	'''
+	decoded=blank
+	chunk=chunk.lower()
+	if chunk.startswith('9') or chunk.startswith('1'): 
+		decoded=scc_chunk2char(chunk)
+	else:
+		one,two=chunk[:2],chunk[2:]
+		try:
+			decoded=scc2char(one)
+			decoded +=scc2char(two)
+		except:
+			pass
+	return decoded
+
+
+def scc_dechunk(chunked):
+	'''
+	split captions into chunks,and decode everything
+	'''
+	buffed=[]
+	chunks=chunked.split(' ')
+	for chunk in chunks:
+		chunk=clear_drops(chunk)
+		if chunk is not blank:
+			decoded=scc_chunk2twochars(chunk)
+			buffed.append(decoded)
+	return  buffed
+
+def scc_split(scc_file):
+	'''
+	times and captions are separated by a tab,
+	'''
+	scc_input=scc_file.readlines()
+	scc_times=[]
+	scc_caps=[]
+	for line in scc_input:
+		if '\t' in line:
+			sl=line.split('\t')
+			dechunked=scc_dechunk(sl[1])
+			if len(dechunked) > 1:
+				scc_times.append(sl[0])
+				scc_caps.append(dechunked)
+	return scc_times,scc_caps
+
+def as_vtt(start,stop,text):
+	vtt_data = ['%(start)s --> %(stop)s ' %{ 'start':start, 'stop': stop},
+	'%(text)s \n\n' %{'text':text}]	
+	return '\n'.join(vtt_data)
+	
+def scc_decoder(scc_file):
+	scc_times,scc_caps=scc_split(scc_file)
+	vtt=[vtt_header]
+	for i in range (len(scc_caps)):
+		start=scc_time2vtt(scc_times[i])
+		try: stop=scc_time2vtt(scc_times[i+1])
+		except: stop="00:00:00.000"
+		text=''.join(scc_caps[i])
+		vtt.append(as_vtt(start,stop,text))
+	return ''.join(vtt)
+
+
+if __name__=='__main__':
+	if len(sys.argv) > 1:
+		with open(sys.argv[1]) as scc_file:
+			with open("out.vtt",'w+') as outfile:
+				outfile.write(scc_decoder(scc_file))					
+
