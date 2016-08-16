@@ -131,6 +131,8 @@ def scc_decoder(scc_file):
 if __name__=='__main__':
 	if len(sys.argv) > 1:
 		with open(sys.argv[1]) as scc_file:
-			with open("out.vtt",'w+') as outfile:
+			try: outfile=sys.argv[2]
+			except: outfile="out.vtt"
+			with open(outfile,'w+') as outfile:
 				outfile.write(scc_decoder(scc_file))
 
