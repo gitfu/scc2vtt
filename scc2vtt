@@ -35,8 +35,9 @@ def scc2char(hexed):
     i=int(s,16)
     if i in [80,128,138]:
         return "\n"
-	
+
     if hexed[0] in ['a','b','c','d','e','f']: i= i ^ 0x80
+    #i = i ^ 0x80
     return chr(i)
 
 def scc_time2vtt(line_time):
@@ -69,7 +70,7 @@ def scc_chunk2twochars(chunk):
 	'''
 	decoded=blank
 	chunk=chunk.lower()
-	if chunk.startswith('9') or chunk.startswith('1'): 
+	if chunk.startswith('9') or chunk.startswith('1'):
 		decoded=scc_chunk2char(chunk)
 	else:
 		one,two=chunk[:2],chunk[2:]
@@ -77,7 +78,7 @@ def scc_chunk2twochars(chunk):
 			decoded=scc2char(one)
 			decoded +=scc2char(two)
 		except:
-			pass
+			decoded="%s%s"%(one,two)
 	return decoded
 
 
@@ -112,9 +113,9 @@ def scc_split(scc_file):
 
 def as_vtt(start,stop,text):
 	vtt_data = ['%(start)s --> %(stop)s ' %{ 'start':start, 'stop': stop},
-	'%(text)s \n\n' %{'text':text}]	
+	'%(text)s \n\n' %{'text':text}]
 	return '\n'.join(vtt_data)
-	
+
 def scc_decoder(scc_file):
 	scc_times,scc_caps=scc_split(scc_file)
 	vtt=[vtt_header]
@@ -131,5 +132,5 @@ if __name__=='__main__':
 	if len(sys.argv) > 1:
 		with open(sys.argv[1]) as scc_file:
 			with open("out.vtt",'w+') as outfile:
-				outfile.write(scc_decoder(scc_file))					
+				outfile.write(scc_decoder(scc_file))
 
