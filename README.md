@@ -5,16 +5,12 @@ Translates Scenarist SCC  closed captions to WebVTT
 
 ## How to use
 `
-#####This is a work in progress, that is kind of working, but it is not ready for production.
-#####It's also light on features. 
+##### This is a work in progress, 
+##### The times and text are accurate, however no formating or positioning is retained .
+ 
 `
-#####The output file is call out.vtt
-
-no option yet to change that. 
-
-It might be a little buggy still, yell if you find one. 
-
-
+##### Sys.argv[1] is the input , 
+##### if sys.argv[2] is present it's the output,  else the output file is call out.vtt
 
 #### just chmod and go.
 `
