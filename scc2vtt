@@ -5,6 +5,26 @@ import sys
 blank=''
 
 vtt_header= 'WEBVTT\n\n'
+#https://dvcs.w3.org/hg/text-tracks/raw-file/default/608toVTT/608toVTT.html
+vtt_style='''WEBVTT
+Style:
+::cue {
+  line-height: 5.33vh;
+  font-size: 4.1vh;
+  font-family: monospace;
+  font-style: normal;
+  font-weight: normal;
+  background-color: black;
+  color: white;
+  align:start;
+}
+##
+Kind: captions
+Language: en-US
+
+
+'''
+
 
 char2code = {'':'91b9','’':'9229','Ø':'13ba','©':'92ab','Ì':'1323','ô':'913e',
 		'¢':'91b5','õ':'13a8','Ç':'9232','¦':'13ae','{':'1329','Ó':'92a2',
@@ -21,16 +41,45 @@ char2code = {'':'91b9','’':'9229','Ø':'13ba','©':'92ab','Ì':'1323','ô':'91
 		'°':'9131','‘':'9226','♪':'9137','℠':'922c','Á':'9220','è':'91ba',
 		'Í':'13a2','û':'91bf'}
 
+'''
+Single-byte codes 0x20-0x7f map to the same Unicode code point, except for:
+
+'''
+
+w3c={'2a': 'á','5c': 'é','5e': 'í','5f': 'ó','60' :'ú',
+'7b': 'ç','7c' :'÷','7d' :'Ñ','7e' :'ñ','7f' :'█'}
 
 
-# I drop these codes ....for now?
+#9120	change to white, no formatting
+#91a1	change to white underline
+#91a2	change to green, no formatting
+#9123	change to green underline
+#91a4	change to blue, no formatting
+#9125	change to blue underline
+#9126	change to cyan, no formatting
+#91a7	change to cyan underline
+#91a8	change to red, no formatting
+#9129	change to red underline
+#912a	change to yellow, no formatting
+#91ab	change to yellow underline
+#912c	change to magenta, not formatting
+#91ad	change to magenta underline
+#91ae	turn on italics
+#912f	turn on italics and underline
+#94a8	turn flash on
+
+# 94ae 94ae clear buffer
+#9420 9420 start captions
+#94ae 94ae clear buffer
+# 942c 942c clear screen
 drops=('9170','94ae','94ad','9420', '942c','9425','9426','97a1')
 
 chars=list(char2code.keys())
 codes=list(char2code.values())
 
 def scc2char(hexed):
-#    if hexed == '80':	return '\n'
+    if hexed in w3c.keys():
+        return w3c[hexed]
     s='0x'+hexed
     i=int(s,16)
     if i in [80,128,138]:
@@ -62,6 +111,9 @@ def scc_chunk2char(chunk):
 	if chunk in codes:
 		idx=codes.index(chunk)
 		decoded=chars[idx]
+
+	else:
+		return chunk
 	return decoded
 
 def scc_chunk2twochars(chunk):
@@ -118,7 +170,7 @@ def as_vtt(start,stop,text):
 
 def scc_decoder(scc_file):
 	scc_times,scc_caps=scc_split(scc_file)
-	vtt=[vtt_header]
+	vtt=[vtt_style]
 	for i in range (len(scc_caps)):
 		start=scc_time2vtt(scc_times[i])
 		try: stop=scc_time2vtt(scc_times[i+1])
