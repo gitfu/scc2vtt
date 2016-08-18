@@ -24,7 +24,7 @@ Language: en-US
 
 
 '''
-
+# I see no good reason convert to and from hex for these, when I can just do a look up.
 
 char2code = {'':'91b9','’':'9229','Ø':'13ba','©':'92ab','Ì':'1323','ô':'913e',
 		'¢':'91b5','õ':'13a8','Ç':'9232','¦':'13ae','{':'1329','Ó':'92a2',
@@ -45,7 +45,6 @@ char2code = {'':'91b9','’':'9229','Ø':'13ba','©':'92ab','Ì':'1323','ô':'91
 Single-byte codes 0x20-0x7f map to the same Unicode code point, except for:
 
 '''
-
 w3c={'2a': 'á','5c': 'é','5e': 'í','5f': 'ó','60' :'ú',
 '7b': 'ç','7c' :'÷','7d' :'Ñ','7e' :'ñ','7f' :'█'}
 
@@ -84,9 +83,7 @@ def scc2char(hexed):
     i=int(s,16)
     if i in [80,128,138]:
         return "\n"
-
     if hexed[0] in ['a','b','c','d','e','f']: i= i ^ 0x80
-    #i = i ^ 0x80
     return chr(i)
 
 def scc_time2vtt(line_time):
@@ -107,11 +104,9 @@ def scc_chunk2char(chunk):
 	the specials or extended codes tuples return decoded value from a chars tuple
 	'''
 	decoded=blank
-
 	if chunk in codes:
 		idx=codes.index(chunk)
 		decoded=chars[idx]
-
 	else:
 		return chunk
 	return decoded
