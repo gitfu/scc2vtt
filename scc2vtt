@@ -101,7 +101,7 @@ def clear_drops(chunk):
 def scc_chunk2char(chunk):
 	'''
 	take an scc chunk like '92ad'and see if it is listed in
-	the specials or extended codes tuples return decoded value from a chars tuple
+	see if it's codes and return  chars with the same index
 	'''
 	decoded=blank
 	if chunk in codes:
@@ -142,11 +142,10 @@ def scc_dechunk(chunked):
 			buffed.append(decoded)
 	return  buffed
 
-def scc_split(scc_file):
+def scc_split(scc_input):
 	'''
 	times and captions are separated by a tab,
 	'''
-	scc_input=scc_file.readlines()
 	scc_times=[]
 	scc_caps=[]
 	for line in scc_input:
@@ -163,10 +162,11 @@ def as_vtt(start,stop,text):
 	'%(text)s \n\n' %{'text':text}]
 	return '\n'.join(vtt_data)
 
-def unroll(thisline,lastline,text):
+def unroll(newcaps,lastcaps):
+	text=''.join(newcaps)
+	lastline="".join(lastcaps).split('\n')[-2].strip()
+	thisline=text.split('\n')[0].strip()
 	if thisline==lastline:
-		#print(lastline)
-		#print(thisline)
 		text=text.replace(lastline,'')
 		text=text.strip()
 	return text
@@ -178,19 +178,21 @@ def scc_decoder(scc_file):
 		start=scc_time2vtt(scc_times[i])
 		try: stop=scc_time2vtt(scc_times[i+1])
 		except: stop="00:00:00.000"
-		text=''.join(scc_caps[i])
-		lastline="".join(scc_caps[i-1]).split('\n')[-2].strip()
-		thisline="".join(scc_caps[i]).split('\n')[0].strip()
-		text=unroll(thisline,lastline,text)
+		text=unroll(scc_caps[i],scc_caps[i-1])
 		vtt.append(as_vtt(start,stop,text))
 	return ''.join(vtt)
 
+def name_files():
+	if len(sys.argv) > 1:
+		infile=sys.argv[1]
+		try: outfile=sys.argv[2]
+		except: outfile="out.vtt"
+	return infile,outfile
 
 if __name__=='__main__':
-	if len(sys.argv) > 1:
-		with open(sys.argv[1]) as scc_file:
-			try: outfile=sys.argv[2]
-			except: outfile="out.vtt"
-			with open(outfile,'w+') as outfile:
-				outfile.write(scc_decoder(scc_file))
+	infile,outfile=name_files()
+	with open(infile) as infile:
+		scc_input=infile.readlines()
+	with open(outfile,'w+') as outfile:
+		outfile.write(scc_decoder(scc_input))
 
