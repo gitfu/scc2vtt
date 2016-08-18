@@ -71,7 +71,7 @@ w3c={'2a': 'á','5c': 'é','5e': 'í','5f': 'ó','60' :'ú',
 #9420 9420 start captions
 #94ae 94ae clear buffer
 # 942c 942c clear screen
-drops=('9170','94ae','94ad','9420', '942c','9425','9426','97a1')
+drops=('9170','94ae','94ad','9420', '942c','942f','9425','9426','97a1','9454')
 
 chars=list(char2code.keys())
 codes=list(char2code.values())
@@ -88,7 +88,10 @@ def scc2char(hexed):
 
 def scc_time2vtt(line_time):
 	lt=line_time.replace(":",".")
-	lt=lt.replace(".",":",2)+'0'
+	lt=lt.replace(".",":",2)
+	while len(lt.split(".")[1]) < 3:
+		lt=lt+"0"
+
 	return lt
 
 def clear_drops(chunk):
@@ -107,8 +110,7 @@ def scc_chunk2char(chunk):
 	if chunk in codes:
 		idx=codes.index(chunk)
 		decoded=chars[idx]
-	else:
-		return chunk
+
 	return decoded
 
 def scc_chunk2twochars(chunk):
@@ -125,7 +127,8 @@ def scc_chunk2twochars(chunk):
 			decoded=scc2char(one)
 			decoded +=scc2char(two)
 		except:
-			decoded="%s%s"%(one,two)
+			pass
+			#decoded="%s%s"%(one,two)
 	return decoded
 
 
@@ -164,7 +167,8 @@ def as_vtt(start,stop,text):
 
 def unroll(newcaps,lastcaps):
 	text=''.join(newcaps)
-	lastline="".join(lastcaps).split('\n')[-2].strip()
+	try: lastline="".join(lastcaps).split('\n')[-2].strip()
+	except: lastline=""
 	thisline=text.split('\n')[0].strip()
 	if thisline==lastline:
 		text=text.replace(lastline,'')
