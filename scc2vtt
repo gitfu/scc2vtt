@@ -163,6 +163,14 @@ def as_vtt(start,stop,text):
 	'%(text)s \n\n' %{'text':text}]
 	return '\n'.join(vtt_data)
 
+def unroll(thisline,lastline,text):
+	if thisline==lastline:
+		#print(lastline)
+		#print(thisline)
+		text=text.replace(lastline,'')
+		text=text.strip()
+	return text
+
 def scc_decoder(scc_file):
 	scc_times,scc_caps=scc_split(scc_file)
 	vtt=[vtt_style]
@@ -171,6 +179,9 @@ def scc_decoder(scc_file):
 		try: stop=scc_time2vtt(scc_times[i+1])
 		except: stop="00:00:00.000"
 		text=''.join(scc_caps[i])
+		lastline="".join(scc_caps[i-1]).split('\n')[-2].strip()
+		thisline="".join(scc_caps[i]).split('\n')[0].strip()
+		text=unroll(thisline,lastline,text)
 		vtt.append(as_vtt(start,stop,text))
 	return ''.join(vtt)
 
