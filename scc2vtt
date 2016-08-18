@@ -88,7 +88,7 @@ def scc2char(hexed):
 
 def scc_time2vtt(line_time):
 	lt=line_time.replace(":",".")
-	lt=lt.replace(".",":",2)
+	lt=lt.replace(".",":",2)+'0'
 	return lt
 
 def clear_drops(chunk):
@@ -168,7 +168,7 @@ def unroll(newcaps,lastcaps):
 	thisline=text.split('\n')[0].strip()
 	if thisline==lastline:
 		text=text.replace(lastline,'')
-		text=text.strip()
+	text=text.strip()
 	return text
 
 def scc_decoder(scc_file):
