@@ -68,7 +68,7 @@ w3c={'2a': 'á','5c': 'é','5e': 'í','5f': 'ó','60' :'ú',
 #94a8	turn flash on
 
 # 94ae 94ae clear buffer
-#9420 9420 start captions
+#9420 9420 start pop on captions
 #94ae 94ae clear buffer
 # 942c 942c clear screen
 drops=('9170','94ae','94ad','9420', '942c','942f','9425','9426','97a1','9454')
@@ -83,7 +83,8 @@ def scc2char(hexed):
     i=int(s,16)
     if i in [80,128,138]:
         return "\n"
-    if hexed[0] in ['a','b','c','d','e','f']: i= i ^ 0x80
+    if hexed[0] in 'abcdef':
+        i= i ^ 0x80
     return chr(i)
 
 def scc_time2vtt(line_time):
@@ -127,8 +128,7 @@ def scc_chunk2twochars(chunk):
 			decoded=scc2char(one)
 			decoded +=scc2char(two)
 		except:
-			pass
-			#decoded="%s%s"%(one,two)
+			decoded="%s%s"%(one,two)
 	return decoded
 
 
@@ -175,16 +175,21 @@ def unroll(newcaps,lastcaps):
 	text=text.strip()
 	return text
 
-def scc_decoder(scc_file):
-	scc_times,scc_caps=scc_split(scc_file)
-	vtt=[vtt_style]
-	for i in range (len(scc_caps)):
-		start=scc_time2vtt(scc_times[i])
-		try: stop=scc_time2vtt(scc_times[i+1])
-		except: stop="00:00:00.000"
-		text=unroll(scc_caps[i],scc_caps[i-1])
-		vtt.append(as_vtt(start,stop,text))
-	return ''.join(vtt)
+def scc_decoder(infile,outfile):
+	with open(infile) as infile:
+		scc_file=infile.readlines()
+		scc_times,scc_caps=scc_split(scc_file)
+		vtt=[vtt_style]
+		for i in range (len(scc_caps)):
+			start=scc_time2vtt(scc_times[i])
+			try: stop=scc_time2vtt(scc_times[i+1])
+			except: stop="00:00:00.000"
+			text=unroll(scc_caps[i],scc_caps[i-1])
+			vtt.append(as_vtt(start,stop,text))
+	
+	with open(outfile,'w+') as outfile:
+		outfile.write(''.join(vtt))	
+	return
 
 def name_files():
 	if len(sys.argv) > 1:
@@ -195,8 +200,5 @@ def name_files():
 
 if __name__=='__main__':
 	infile,outfile=name_files()
-	with open(infile) as infile:
-		scc_input=infile.readlines()
-	with open(outfile,'w+') as outfile:
-		outfile.write(scc_decoder(scc_input))
+	scc_decoder(infile,outfile)
 
