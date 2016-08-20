@@ -6,43 +6,21 @@ blank=''
 
 vtt_header= 'WEBVTT\n\n'
 #https://dvcs.w3.org/hg/text-tracks/raw-file/default/608toVTT/608toVTT.html
-vtt_style='''WEBVTT
 
-
-Style:
-::cue {
-  line-height: 5.33vh;
-  font-size: 4.1vh;
-  font-family: monospace;
-  font-style: normal;
-  font-weight: normal;
-  background-color: black;
-  color: white;
-  align:start;
-}
-
-##
-Kind: captions
-Language: en-US
-
-
-'''
 # I see no good reason convert to and from hex for these, when I can just do a look up.
 
-char2code = {'':'91b9','’':'9229','Ø':'13ba','©':'92ab','Ì':'1323','ô':'913e',
-		'¢':'91b5','õ':'13a8','Ç':'9232','¦':'13ae','{':'1329','Ó':'92a2',
-		'Ò':'1325','\\':'13ab','ø':'133b','“':'92ae','Ë':'92b5','|':'1337',
-		'Õ':'13a7','┘':'13bf','Ô':'92ba','Ê':'9234','Ú':'9223','ö':'13b3',
-		'Î':'9237','ì':'13a4','£':'91b6','ä':'1331','”':'922f','¿':'91b3',
-		'Ö':'1332','┐':'133d','à':'9138','Å':'1338','«':'923e','î':'913d',
-		'Ü':'92a4','Ï':'9238','™':'9134','ò':'1326','Ã':'1320','ï':'92b9',
-		'*':'92a8','_':'13ad','Û':'923d','À':'92b0','â':'913b','┌':'13bc',
-		'ã':'13a1','¡':'92a7','®':'91b0','•':'92ad','ê':'91bc','~':'132f',
-		'ü':'9225','Ù':'923b','Ä':'13b0','ß':'1334','ù':'92bc','└':'133e',
-		'½':'9132','È':'92b3','É':'92a1','ë':'92b6','¥':'13b5','^':'132c',
-		'}':'132a','¤':'13b6','—':'922a','»':'92bf','Â':'9231','å':'13b9',
-		'°':'9131','‘':'9226','♪':'9137','℠':'922c','Á':'9220','è':'91ba',
-		'Í':'13a2','û':'91bf'}
+char2code = {'':'91b9','’':'9229','Ø':'13ba','©':'92ab','Ì':'1323','ô':'913e','¢':'91b5','õ':'13a8','Ç':'9232',
+'¦':'13ae','{':'1329','Ó':'92a2','Ò':'1325','\\':'13ab','ø':'133b','“':'92ae','Ë':'92b5','|':'1337','Õ':'13a7',
+'┘':'13bf','Ô':'92ba','Ê':'9234','Ú':'9223','ö':'13b3','Î':'9237','ì':'13a4','£':'91b6','ä':'1331','”':'922f',
+'¿':'91b3','Ö':'1332','┐':'133d','à':'9138','Å':'1338','«':'923e','î':'913d','Ü':'92a4','Ï':'9238','™':'9134',
+'ò':'1326','Ã':'1320','ï':'92b9','*':'92a8','_':'13ad','Û':'923d','À':'92b0','â':'913b','┌':'13bc','ã':'13a1',
+'¡':'92a7','®':'91b0','•':'92ad','ê':'91bc','~':'132f','ü':'9225','Ù':'923b','Ä':'13b0','ß':'1334','ù':'92bc',
+'└':'133e','½':'9132','È':'92b3','É':'92a1','ë':'92b6','¥':'13b5','^':'132c','}':'132a','¤':'13b6','—':'922a',
+'»':'92bf','Â':'9231','å':'13b9','°':'9131','‘':'9226','♪':'9137','℠':'922c','Á':'9220','è':'91ba','Í':'13a2','û':'91bf'}
+
+chars=list(char2code.keys())
+
+codes=list(char2code.values())
 
 '''
 Single-byte codes 0x20-0x7f map to the same Unicode code point, except for:
@@ -50,7 +28,6 @@ Single-byte codes 0x20-0x7f map to the same Unicode code point, except for:
 '''
 w3c={'2a': 'á','5c': 'é','5e': 'í','5f': 'ó','60' :'ú',
 '7b': 'ç','7c' :'÷','7d' :'Ñ','7e' :'ñ','7f' :'█'}
-
 
 #9120	change to white, no formatting
 #91a1	change to white underline
@@ -76,17 +53,14 @@ w3c={'2a': 'á','5c': 'é','5e': 'í','5f': 'ó','60' :'ú',
 # 942c 942c clear screen
 drops=('9170','94ae','94ad','9420', '942c','942f','9425','9426','97a1','9454')
 
-chars=list(char2code.keys())
-codes=list(char2code.values())
-
-def scc2char(hexed):
-    if hexed in w3c.keys():
-        return w3c[hexed]
-    s='0x'+hexed
+def scc2char(half_chunk):
+    if half_chunk in w3c.keys():
+        return w3c[half_chunk]
+    s='0x'+half_chunk
     i=int(s,16)
     if i in [80,128,138]:
         return "\n"
-    if hexed[0] in 'abcdef':
+    if half_chunk[0] in 'abcdef':
         i= i ^ 0x80
     return chr(i)
 
@@ -114,7 +88,6 @@ def scc_chunk2char(chunk):
 	if chunk in codes:
 		idx=codes.index(chunk)
 		decoded=chars[idx]
-
 	return decoded
 
 def scc_chunk2twochars(chunk):
@@ -148,13 +121,13 @@ def scc_dechunk(chunked):
 			buffed.append(decoded)
 	return  buffed
 
-def scc_split(scc_input):
+def scc_split(scc_data):
 	'''
 	times and captions are separated by a tab,
 	'''
 	scc_times=[]
 	scc_caps=[]
-	for line in scc_input:
+	for line in scc_data:
 		if '\t' in line:
 			sl=line.split('\t')
 			dechunked=scc_dechunk(sl[1])
@@ -179,17 +152,16 @@ def unroll(newcaps,lastcaps):
 	return text
 
 def scc_decoder(infile,outfile):
-	with open(infile) as infile:
-		scc_file=infile.readlines()
-		scc_times,scc_caps=scc_split(scc_file)
-		vtt=[vtt_style]
+	with open(infile).readlines as scc_data:
+		scc_times,scc_caps=scc_split(scc_data)
+		vtt=[vtt_header]
 		for i in range (len(scc_caps)):
 			start=scc_time2vtt(scc_times[i])
 			try: stop=scc_time2vtt(scc_times[i+1])
 			except: stop="00:00:00.000"
 			text=unroll(scc_caps[i],scc_caps[i-1])
 			vtt.append(as_vtt(start,stop,text))
-	
+			
 	with open(outfile,'w+') as outfile:
 		outfile.write(''.join(vtt))	
 	return
