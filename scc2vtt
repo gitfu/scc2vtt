@@ -7,6 +7,8 @@ blank=''
 vtt_header= 'WEBVTT\n\n'
 #https://dvcs.w3.org/hg/text-tracks/raw-file/default/608toVTT/608toVTT.html
 vtt_style='''WEBVTT
+
+
 Style:
 ::cue {
   line-height: 5.33vh;
@@ -18,6 +20,7 @@ Style:
   color: white;
   align:start;
 }
+
 ##
 Kind: captions
 Language: en-US
