@@ -152,7 +152,8 @@ def unroll(newcaps,lastcaps):
 	return text
 
 def scc_decoder(infile,outfile):
-	with open(infile).readlines as scc_data:
+	with open(infile)as infile:
+		scc_data=infile.readlines()
 		scc_times,scc_caps=scc_split(scc_data)
 		vtt=[vtt_header]
 		for i in range (len(scc_caps)):
