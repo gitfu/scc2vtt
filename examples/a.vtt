@@ -1,19 +1,4 @@
 WEBVTT
-Style:
-::cue {
-  line-height: 5.33vh;
-  font-size: 4.1vh;
-  font-family: monospace;
-  font-style: normal;
-  font-weight: normal;
-  background-color: black;
-  color: white;
-  align:start;
-}
-##
-Kind: captions
-Language: en-US
-
 
 00:00:00.000 --> 00:00:02.000 
 GREAT WHITE PEOPLE WHO MARCHED 
@@ -23,7 +8,7 @@ GREAT WHITE PEOPLE W W WHO MARCHED
 WITH THOSE GREAT BLACK LEADERS. 
 
 00:00:04.000 --> 00:00:05.000 
->> WHY DID YOU DECIDE TO RAISE 
+- WHY DID YOU DECIDE TO RAISE 
 
 00:00:05.000 --> 00:00:07.000 
 THE ISSUE OF GAY RIGHTS, 
@@ -38,7 +23,7 @@ LOCKER ROOM OR WHATEVER WITH
 THIS PRESIDENT? 
 
 00:00:13.000 --> 00:00:15.000 
->> WELL, I THINK IT'S IMPORTANT 
+- WELL, I THINK IT'S IMPORTANT 
 
 00:00:15.000 --> 00:00:19.000 
 AS A BLACK MAN TO ALWAYS BE 
@@ -143,7 +128,7 @@ WILL THEY BE RECEIVED BY THEIR
 TEAMMATES, CHARLES? 
 
 00:01:20.000 --> 00:01:21.000 
->> WELL, I THINK THEY'RE GOING 
+- WELL, I THINK THEY'RE GOING 
 
 00:01:21.000 --> 00:01:24.000 
 TO BE SAFE WITH THEIR TEAMMATES. 

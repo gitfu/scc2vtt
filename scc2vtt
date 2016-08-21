@@ -137,6 +137,8 @@ def scc_split(scc_data):
 	return scc_times,scc_caps
 
 def as_vtt(start,stop,text):
+	if text.startswith('>>'):
+		text='-'+text[2:]
 	vtt_data = ['%(start)s --> %(stop)s ' %{ 'start':start, 'stop': stop},
 	'%(text)s \n\n' %{'text':text}]
 	return '\n'.join(vtt_data)
