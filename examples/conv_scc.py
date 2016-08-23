@@ -11,4 +11,4 @@ def name_files():
 
 if __name__=='__main__':
         infile,outfile=name_files()
-        scc_decoder(infile,outfile)
+        scc2vtt.scc_decoder(infile,outfile)
