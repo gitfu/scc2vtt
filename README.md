@@ -12,10 +12,30 @@ Translates Scenarist SCC  closed captions to WebVTT
 
 ## How to use
 
-#### just chmod and go.
+* Full working example.
+
+* Create conv_scc.py  
+* Write this to  conv_scc.py 
 ```
-chmod +x scc2vtt
+import scc2vtt
+import sys
+
+
+def name_files():
+	if len(sys.argv) > 1:
+		infile=sys.argv[1]
+		try: outfile=sys.argv[2]
+		except: outfile="out.vtt"
+	return infile,outfile
+
+if __name__=='__main__':
+	infile,outfile=name_files()
+	scc_decoder(infile,outfile)
+
 ```
+
+* Run it like so.
+
 ```
-./scc2vtt file.scc
+python conv_scc.py  my_in.scc my_out.vtt
 ````
