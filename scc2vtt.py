@@ -30,27 +30,7 @@ w3c={'2a': 'á','5c': 'é','5e': 'í','5f': 'ó','60' :'ú',
 '7b': 'ç','7c' :'÷','7d' :'Ñ','7e' :'ñ','7f' :'█'}
 
 #9120	change to white, no formatting
-#91a1	change to white underline
-#91a2	change to green, no formatting
-#9123	change to green underline
-#91a4	change to blue, no formatting
-#9125	change to blue underline
-#9126	change to cyan, no formatting
-#91a7	change to cyan underline
-#91a8	change to red, no formatting
-#9129	change to red underline
-#912a	change to yellow, no formatting
-#91ab	change to yellow underline
-#912c	change to magenta, not formatting
-#91ad	change to magenta underline
-#91ae	turn on italics
-#912f	turn on italics and underline
-#94a8	turn flash on
 
-# 94ae 94ae clear buffer
-#9420 9420 start pop on captions
-#94ae 94ae clear buffer
-# 942c 942c clear screen
 drops=('9170','94ae','94ad','9420', '942c','942f','9425','9426','97a1','9454')
 
 def scc2char(half_chunk):
