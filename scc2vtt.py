@@ -33,6 +33,15 @@ w3c={'2a': 'á','5c': 'é','5e': 'í','5f': 'ó','60' :'ú',
 
 drops=('9170','94ae','94ad','9420', '942c','942f','9425','9426','97a1','9454')
 
+def chk_9470(data):
+    return data.replace(' 9470 9470',' 2080 9470 9470')
+    
+def chk_newlines(text):
+    '''
+    replace newline space newline with a newline
+    '''
+    return text.replace('\n \n','\n')
+ 
 def scc2char(half_chunk):
     if half_chunk in w3c.keys():
         return w3c[half_chunk]
@@ -45,9 +54,9 @@ def scc2char(half_chunk):
     return chr(i)
 
 def scc_time2vtt(line_time):
-    lt=line_time.replace(":",".")
+    lt=line_time.replace(":",".").replace(';','.')
     lt=lt.replace(".",":",2)
-    while len(lt.split(".")[1]) < 3:
+    while len(lt.split(".")[1]) < 2:
         lt=lt+"0"
 
     return lt
@@ -110,6 +119,7 @@ def scc_split(scc_data):
     for line in scc_data:
         if '\t' in line:
             sl=line.split('\t')
+            sl[1]=chk_9470(sl[1])
             dechunked=scc_dechunk(sl[1])
             if len(dechunked) > 1:
                 scc_times.append(sl[0])
@@ -117,21 +127,23 @@ def scc_split(scc_data):
     return scc_times,scc_caps
 
 def as_vtt(start,stop,text):
-    if text.startswith('>>'):
-        text='-'+text[2:]
+    text=chk_newlines(text)
+    if text.startswith('\n'):
+        text=text[1:]
     vtt_data = ['%(start)s --> %(stop)s ' %{ 'start':start, 'stop': stop},
     '%(text)s \n\n' %{'text':text}]
     return '\n'.join(vtt_data)
 
 def unroll(newcaps,lastcaps):
-    text=''.join(newcaps)
+
     try: lastline="".join(lastcaps).split('\n')[-2].strip()
     except: lastline=""
-    thisline=text.split('\n')[0].strip()
-    if thisline==lastline:
-        text=text.replace(lastline,'')
-    text=text.strip()
-    return text
+    print(lastline,"  last")
+    thisline=''.join(newcaps).split('\n')[0].strip()
+    print(thisline,"  this")
+    #if lastline in thisline:
+    thisline=thisline.replace(lastline,'')
+    return thisline
 
 def scc_decoder(infile,outfile):
     with open(infile)as infile:
@@ -141,10 +153,13 @@ def scc_decoder(infile,outfile):
         for i in range (len(scc_caps)):
             start=scc_time2vtt(scc_times[i])
             try: stop=scc_time2vtt(scc_times[i+1])
-            except: stop="00:00:00.000"
-            text=unroll(scc_caps[i],scc_caps[i-1])
+            except: stop="00:00:00.00"
+           # text=unroll(scc_caps[i],scc_caps[i-1])
+            text="".join(scc_caps[i])
+            print(text)
+            text=text.replace('\n>>','>>').replace('>>','\n>>')
             vtt.append(as_vtt(start,stop,text))
-            
+   
     with open(outfile,'w+') as outfile:
         outfile.write(''.join(vtt))
         print(outfile.read())   
