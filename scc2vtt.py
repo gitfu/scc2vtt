@@ -33,33 +33,47 @@ w3c={'2a': 'á','5c': 'é','5e': 'í','5f': 'ó','60' :'ú',
 
 drops=('9170','94ae','94ad','9420', '942c','942f','9425','9426','97a1','9454')
 
-def chk_9470(data):
+
+
+def fixup_9470(data):
     return data.replace(' 9470 9470',' 2080 9470 9470')
+
     
-def chk_newlines(text):
+def fixup_newlines(text):
     '''
-    replace newline space newline with a newline
+    Newline cleanup 
+    I know this crazy, but it gives me consistent results, 
+    despite format variations. If you have a better way, 
+    speak up. 
     '''
+    text=text.replace('\n\n\n','\n')
+    text=text.replace('\n\n','\n')
     return text.replace('\n \n','\n')
+
+
+def fixup_speaker(caps):
+    '''
+    Ensure new speaker indicators start on newlines
+    '''
+    text="".join(caps)
+    return text.replace(' >>','>>')#.replace('>>','\n>>')
+ 
  
 def scc2char(half_chunk):
-    if half_chunk in w3c.keys():
-        return w3c[half_chunk]
+    if half_chunk in w3c.keys(): return w3c[half_chunk]
     s='0x'+half_chunk
     i=int(s,16)
-    if i in [80,128,138]:
-        return "\n"
-    if half_chunk[0] in 'abcdef':
-        i= i ^ 0x80
+    if i in [80,128,138]: return "\n"
+    if half_chunk[0] in 'abcdef': i= i ^ 0x80
     return chr(i)
+
 
 def scc_time2vtt(line_time):
     lt=line_time.replace(":",".").replace(';','.')
     lt=lt.replace(".",":",2)
-    while len(lt.split(".")[1]) < 2:
-        lt=lt+"0"
-
+    while len(lt.split(".")[1]) < 2: lt=lt+"0"
     return lt
+
 
 def clear_drops(chunk):
     '''
@@ -67,6 +81,7 @@ def clear_drops(chunk):
     '''
     if chunk in drops: chunk= blank
     return chunk
+
 
 def scc_chunk2char(chunk):
     '''
@@ -79,9 +94,10 @@ def scc_chunk2char(chunk):
         decoded=chars[idx]
     return decoded
 
+
 def scc_chunk2twochars(chunk):
     '''
-    decode scc into chaars
+    decode scc into chars
     '''
     decoded=blank
     chunk=chunk.lower()
@@ -97,12 +113,12 @@ def scc_chunk2twochars(chunk):
     return decoded
 
 
-def scc_dechunk(chunked):
+def scc_dechunk(cap):
     '''
     split captions into chunks,and decode everything
     '''
     buffed=[]
-    chunks=chunked.split(' ')
+    chunks=cap.split(' ')
     for chunk in chunks:
         chunk=clear_drops(chunk)
         if chunk is not blank:
@@ -110,57 +126,59 @@ def scc_dechunk(chunked):
             buffed.append(decoded)
     return  buffed
 
-def scc_split(scc_data):
+
+def scc_split(scc_cues):
     '''
     times and captions are separated by a tab,
     '''
     scc_times=[]
     scc_caps=[]
-    for line in scc_data:
-        if '\t' in line:
-            sl=line.split('\t')
-            sl[1]=chk_9470(sl[1])
+    for cue in scc_cues:
+        if '\t' in cue:
+            sl=cue.split('\t')
+            sl[1]=fixup_9470(sl[1])
             dechunked=scc_dechunk(sl[1])
             if len(dechunked) > 1:
                 scc_times.append(sl[0])
                 scc_caps.append(dechunked)
     return scc_times,scc_caps
 
-def as_vtt(start,stop,text):
-    text=chk_newlines(text)
-    if text.startswith('\n'):
-        text=text[1:]
-    vtt_data = ['%(start)s --> %(stop)s ' %{ 'start':start, 'stop': stop},
-    '%(text)s \n\n' %{'text':text}]
-    return '\n'.join(vtt_data)
 
-def unroll(newcaps,lastcaps):
+def as_vtt(start,stop,cap):
+    vtt_cue = '%(start)s --> %(stop)s\n%(cap)s' %{ 'start':start, 'stop': stop,'cap': cap}
+    return vtt_cue
 
-    try: lastline="".join(lastcaps).split('\n')[-2].strip()
-    except: lastline=""
-    print(lastline,"  last")
-    thisline=''.join(newcaps).split('\n')[0].strip()
-    print(thisline,"  this")
-    #if lastline in thisline:
-    thisline=thisline.replace(lastline,'')
-    return thisline
+
+def vtt_start_stop(scc_start,scc_stop):
+    vtt_start=scc_time2vtt(scc_start)
+    vtt_stop=scc_time2vtt(scc_stop)
+    return vtt_start,vtt_stop
+	
+	    
+def write_vtt_file(outfile,vtt_cues):
+    with open(outfile,'w+') as outfile:
+        outfile.write(vtt_header)
+        outfile.write('\n')
+        for cue in vtt_cues:
+            print(cue)
+            print(fixup_newlines(cue))
+            outfile.write(fixup_newlines(cue))
+#            outfile.write(cue)
+            outfile.write('\n')
+    outfile.close()
+    return outfile
+
 
 def scc_decoder(infile,outfile):
     with open(infile)as infile:
         scc_data=infile.readlines()
-        scc_times,scc_caps=scc_split(scc_data)
-        vtt=[vtt_header]
-        for i in range (len(scc_caps)):
-            start=scc_time2vtt(scc_times[i])
-            try: stop=scc_time2vtt(scc_times[i+1])
-            except: stop="00:00:00.00"
-           # text=unroll(scc_caps[i],scc_caps[i-1])
-            text="".join(scc_caps[i])
-            print(text)
-            text=text.replace('\n>>','>>').replace('>>','\n>>')
-            vtt.append(as_vtt(start,stop,text))
-   
-    with open(outfile,'w+') as outfile:
-        outfile.write(''.join(vtt))
-        print(outfile.read())   
-    return outfile
+        scc_times,scc_cues=scc_split(scc_data)
+        vtt=[]
+        scc_times.append("00:00:00.00") # add a final stop
+        for i in range (len(scc_cues)-1): # minus the one we just added the loop
+            start,stop=vtt_start_stop(scc_times[i],scc_times[i+1])
+            cue =fixup_speaker(scc_cues[i])
+            vtt.append(as_vtt(start,stop,cue))
+    infile.close()	    
+    write_vtt_file(outfile,vtt)
+ 
