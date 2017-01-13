@@ -31,8 +31,8 @@ w3c={'2a': 'á','5c': 'é','5e': 'í','5f': 'ó','60' :'ú',
 
 #9120   change to white, no formatting
 
+# Various codes I currently ignore. 
 drops=('9170','94ae','94ad','9420', '942c','942f','9425','9426','97a1','9454')
-
 
 
 def fixup_9470(data):
@@ -42,9 +42,7 @@ def fixup_9470(data):
 def fixup_newlines(text):
     '''
     Newline cleanup 
-    I know this crazy, but it gives me consistent results, 
-    despite format variations. If you have a better way, 
-    speak up. 
+    I question my logic here, this is sketchy.
     '''
     text=text.replace('\n\n\n','\n')
     text=text.replace('\n\n','\n')
@@ -69,7 +67,7 @@ def scc2char(half_chunk):
 
 
 def scc_time2vtt(line_time):
-    lt=line_time.replace(":",".").replace(';','.')
+    lt=lt.replace(';','.')
     lt=lt.replace(".",":",2)
     while len(lt.split(".")[1]) < 2: lt=lt+"0"
     return lt
@@ -101,6 +99,9 @@ def scc_chunk2twochars(chunk):
     '''
     decoded=blank
     chunk=chunk.lower()
+    '''
+     Advanced hexidecimal mathematical computational stuff
+     '''
     if chunk.startswith('9') or chunk.startswith('1'):
         decoded=scc_chunk2char(chunk)
     else:
@@ -174,6 +175,13 @@ def scc_decoder(infile,outfile):
         scc_data=infile.readlines()
         scc_times,scc_cues=scc_split(scc_data)
         vtt=[]
+	'''
+	Adding 
+	00:00:00.00
+	for the final time code.
+	 This strikes me a kooky, 
+	 I'm not sure this is correct
+	 '''
         scc_times.append("00:00:00.00") # add a final stop
         for i in range (len(scc_cues)-1): # minus the one we just added the loop
             start,stop=vtt_start_stop(scc_times[i],scc_times[i+1])
