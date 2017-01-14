@@ -67,7 +67,7 @@ def scc2char(half_chunk):
 
 
 def scc_time2vtt(line_time):
-    lt=lt.replace(';','.')
+    lt=line_time.replace(":",".").replace(';','.')  
     lt=lt.replace(".",":",2)
     while len(lt.split(".")[1]) < 2: lt=lt+"0"
     return lt
@@ -175,13 +175,6 @@ def scc_decoder(infile,outfile):
         scc_data=infile.readlines()
         scc_times,scc_cues=scc_split(scc_data)
         vtt=[]
-	'''
-	Adding 
-	00:00:00.00
-	for the final time code.
-	 This strikes me a kooky, 
-	 I'm not sure this is correct
-	 '''
         scc_times.append("00:00:00.00") # add a final stop
         for i in range (len(scc_cues)-1): # minus the one we just added the loop
             start,stop=vtt_start_stop(scc_times[i],scc_times[i+1])
