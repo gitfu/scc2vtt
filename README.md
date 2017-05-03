@@ -38,59 +38,53 @@ if __name__=='__main__':
 
 ```
 python conv_scc.py  my_in.scc my_out.vtt
+
+
 ```
+I love JavaScript, but I loathe switch statements.
+Here's a way to have switch like functionality, but with objects instead.
+This is a simple key listener that calls a different function for each of the arrow keys.  
+You can open a browser console on any web page and copy and paste this code in.   
+
+
+
+* This function is to stop the event.
 ```js
-function squash(evt)
+function squash(evt){
     	evt.preventDefault();
     	evt.stopPropagation();
 	return false;
-}
-
+};
+```
+* The functions for each key
+```js
 function leftKey(){ 
 	console.log("left key");
-}
+};
 
 function upKey(){ 
 	console.log("up key");
-}
+};
 
 function rightKey(){ 
 	console.log("right key");
-}
+};
 
 function downKey (){ 
 	console.log("down key");
-}
-	 		
-
-
-document.onkeydown = function(evt) {	
-    evt = evt || window.event;
-    var k  = evt.keyCode
-    squash(evt)
-    switch (k) {
-        case 37:
-		leftKey();
-		break;
-        case 39:
-		rightKey();
-		break;
-	case 38:
-		upKey();
-		break;
-        case 40:
-		downKey();
-		break;
-    }
 };
+```	 		
 
-var keychainOne { 37: leftKey
+* This is the keychain object used to maqp keycodes to each function. 
+```js
+var keychain = { 37: leftKey
 		, 38: upKey
 		, 39: rightKey
 		, 40: downKey
-		}
-
-
+		};
+```
+* Finally the event listener
+```js
 document.onkeydown = function (e){
     	e  = e ||window.event
     	var k  = e.keyCode
@@ -99,9 +93,9 @@ document.onkeydown = function (e){
         	keychain[k]()
     	}
 }
+```
 
-
-
+* If you try this in a browser console, make sure to switch the focus back to the web when you press the keys. 
 
 
 
